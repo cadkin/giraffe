@@ -3,7 +3,7 @@
 
     lib, stdenv,
 
-    cmake,
+    cmake, ninja, clang-tools,
 
     boost
 }:
@@ -16,6 +16,8 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [
     cmake
+    ninja
+    clang-tools
   ];
 
   buildInputs = [
@@ -24,6 +26,12 @@ stdenv.mkDerivation rec {
 
   cmakeFlags = [
     # NOP
+  ];
+
+  # Bug with LLVM, so disable for now.
+  # https://github.com/llvm/llvm-project/issues/121709
+  hardeningDisable = [
+    "fortify"
   ];
 }
 

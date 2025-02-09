@@ -16,10 +16,12 @@
         packages = pkgs.llvmPackages_p2996;
         stdenv   = packages.libcxxStdenv;
 
-        tooling = {
+        tooling = rec {
           # LLDB is currently broken on Bloomberg's fork, but we can use LLVM 19's LLDB.
           # https://github.com/bloomberg/clang-p2996/pull/24
           lldb = pkgs.llvmPackages_19.lldb;
+
+          clang-tools = tools;
 
           tools = packages.clang-tools.override {
             enableLibcxx = true;
@@ -38,7 +40,7 @@
       giraffe = {
         devel = pkgs.callPackage ./nix/giraffe/common.nix {
           inherit (llvm) stdenv;
-          inherit (llvm.tooling) cmake;
+          inherit (llvm.tooling) cmake clang-tools;
 
           version = self.shortRev or self.dirtyShortRev;
           src     = self;
@@ -53,7 +55,6 @@
         name = "giraffeDev";
 
         packages = with pkgs; with config; [
-          ninja
           git
 
           llvm.tooling.lldb

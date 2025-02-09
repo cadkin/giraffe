@@ -53,7 +53,7 @@ function(MakeExecutableTarget)
 
     # Create executable.
     add_executable(${EXEC_NAME})
-    target_sources(${EXEC_NAME} PUBLIC FILE_SET CXX_MODULES FILES ${MODULE_SOURCES})
+    target_sources(${EXEC_NAME} PRIVATE FILE_SET CXX_MODULES FILES ${MODULE_SOURCES})
     target_link_libraries(${EXEC_NAME} ${DEPENDENCIES})
 
     # Configure properties.
