@@ -12,6 +12,8 @@
         inherit system;
       };
 
+      stdenv = llvm.stdenv;
+
       llvm = rec {
         packages = pkgs.llvmPackages_p2996;
         stdenv   = packages.libcxxStdenv;
@@ -26,21 +28,19 @@
           tools = packages.clang-tools.override {
             enableLibcxx = true;
           };
-
-          cmake = pkgs.callPackage ./nix/support/cmake-patch.nix { inherit (packages) libcxx; };
         };
       };
     };
 
-    packages = with config; rec {
-      inherit pkgs;
+    lib = with config; {
+      # NOP
+    } // pkgs.lib;
 
-      default = giraffe.devel;
-
+    legacyPackages = with config; {
       giraffe = {
-        devel = pkgs.callPackage ./nix/giraffe/common.nix {
-          inherit (llvm) stdenv;
-          inherit (llvm.tooling) cmake clang-tools;
+        devel = pkgs.callPackage ./nix/giraffe {
+          inherit stdenv;
+          inherit (llvm.tooling) clang-tools;
 
           version = self.shortRev or self.dirtyShortRev;
           src     = self;
@@ -48,10 +48,15 @@
       };
     };
 
+    packages = with config; rec {
+      default = giraffe;
+      giraffe = legacyPackages.giraffe.devel;
+    };
+
     devShells = with config; rec {
       default = giraffeDev;
 
-      giraffeDev = pkgs.mkShell.override { inherit (llvm) stdenv; } rec {
+      giraffeDev = pkgs.mkShell.override { inherit stdenv; } rec {
         name = "giraffeDev";
 
         packages = with pkgs; with config; [
@@ -59,7 +64,7 @@
 
           llvm.tooling.lldb
           llvm.tooling.tools
-        ] ++ pkgs.lib.optionals (pkgs.stdenv.hostPlatform.isLinux) [
+        ] ++ lib.optionals (stdenv.hostPlatform.isLinux) [
           cntr
         ] ++ self.outputs.packages.${system}.default.buildInputs
           ++ self.outputs.packages.${system}.default.nativeBuildInputs
@@ -78,9 +83,13 @@
         ];
 
         # Ensure the locales point at the correct archive location.
-        LOCALE_ARCHIVE = pkgs.lib.optional (pkgs.stdenv.hostPlatform.isLinux) (
+        LOCALE_ARCHIVE = lib.optional (stdenv.hostPlatform.isLinux) (
           "${pkgs.glibcLocales}/lib/locale/locale-archive"
         );
+
+        # Workaround for missing libc++.modules.json for C++ modules.
+        # See: https://github.com/NixOS/nixpkgs/issues/370217
+        NIX_CFLAGS_COMPILE = "-B${llvm.packages.libcxx}/lib";
       };
     };
   });

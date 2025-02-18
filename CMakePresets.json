@@ -14,15 +14,15 @@
   ],
   "buildPresets": [
     {
-      "name":            "debug-llvm-ninja",
-      "displayName":     "Debug (llvm-ninja)",
+      "name":            "build-debug-llvm-ninja",
+      "displayName":     "Build Debug (llvm-ninja)",
       "description":     "Compile a debug build using LLVM.",
       "configurePreset": "generic-llvm-ninja",
       "configuration":   "Debug"
     },
     {
-      "name":            "release-llvm-ninja",
-      "displayName":     "Release (llvm-ninja)",
+      "name":            "build-release-llvm-ninja",
+      "displayName":     "Build Release (llvm-ninja)",
       "description":     "Compile a release build using LLVM.",
       "configurePreset": "generic-llvm-ninja",
       "configuration":   "Release"
