@@ -1,9 +1,9 @@
 {
     src, version,
 
-    lib, stdenv,
+    lib, stdenv, wrapQtAppsHook,
 
-    cmake, ninja, clang-tools,
+    cmake, ninja, clang-tools, qtbase,
 
     boost
 }:
@@ -18,10 +18,12 @@ stdenv.mkDerivation rec {
     cmake
     ninja
     clang-tools
+    wrapQtAppsHook
   ];
 
   buildInputs = [
     boost
+    qtbase
   ];
 
   cmakeFlags = [

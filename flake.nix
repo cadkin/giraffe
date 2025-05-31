@@ -38,7 +38,7 @@
 
     legacyPackages = with config; {
       giraffe = {
-        devel = pkgs.callPackage ./nix/giraffe {
+        devel = pkgs.qt6.callPackage ./nix/giraffe {
           inherit stdenv;
           inherit (llvm.tooling) clang-tools;
 
@@ -66,9 +66,11 @@
           llvm.tooling.tools
         ] ++ lib.optionals (stdenv.hostPlatform.isLinux) [
           cntr
-        ] ++ self.outputs.packages.${system}.default.buildInputs
-          ++ self.outputs.packages.${system}.default.nativeBuildInputs
-          ++ self.outputs.packages.${system}.default.propagatedBuildInputs;
+        ];
+
+        inputsFrom = [
+          self.outputs.packages.${system}.default
+        ];
 
         # For dev, we want to disable hardening.
         hardeningDisable = [
